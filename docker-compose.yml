@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  ob-recommendation:
+    container_name: ob-recommendation
+    build:
+      context: .
+      dockerfile: Dockerfile.slim
+    image: ob-recommendation:latest
+    ports: 
+      - "3000:3000"
+    tty: true 
+

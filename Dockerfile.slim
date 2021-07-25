@@ -1,0 +1,48 @@
+FROM python:3-slim as base
+
+
+# Install depedency stage
+FROM base as builder
+
+RUN apt-get update && apt-get install -y \
+    #2 lines below to install psycopg2
+    libpq-dev \
+    gcc
+
+RUN python3 -m venv env
+
+# # Setting these environment variables are the same as running
+# # source /env/bin/activate.
+ENV VIRTUAL_ENV /env
+ENV PATH /env/bin:$PATH
+
+ADD requirements.txt /app/requirements.txt
+
+RUN pip install -r /app/requirements.txt
+
+
+FROM base
+
+RUN apt-get update && apt-get install -y \
+    # Use this line to run wait-for \
+    netcat-openbsd \
+    libpq-dev
+    # gcompat
+
+RUN python3 -m venv env
+
+# # Setting these environment variables are the same as running
+# # source /env/bin/activate.
+ENV VIRTUAL_ENV /env
+ENV PATH /env/bin:$PATH
+
+ADD requirements.txt /app/requirements.txt
+
+COPY --from=builder /env /env
+
+ADD . /app
+
+ENV PYTHONUNBUFFERED=1
+# ENV PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /app
